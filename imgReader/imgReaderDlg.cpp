@@ -6,6 +6,7 @@
 #include "imgReader.h"
 #include "imgReaderDlg.h"
 #include "afxdialogex.h"
+#include "Os.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -51,6 +52,11 @@ END_MESSAGE_MAP()
 
 CimgReaderDlg::CimgReaderDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_IMGREADER_DIALOG, pParent)
+	, m_pic_val(_T(""))
+	, m_bitcount_val(_T(""))
+	, m_height_val(_T(""))
+	, m_type_val(_T(""))
+	, m_width_val(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -58,12 +64,18 @@ CimgReaderDlg::CimgReaderDlg(CWnd* pParent /*=nullptr*/)
 void CimgReaderDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_PIC, m_pic_val);
+	DDX_Text(pDX, IDC_STATIC_BITCOUNT, m_bitcount_val);
+	DDX_Text(pDX, IDC_STATIC_HEIGHT, m_height_val);
+	DDX_Text(pDX, IDC_STATIC_TYPE, m_type_val);
+	DDX_Text(pDX, IDC_STATIC_WIDTH, m_width_val);
 }
 
 BEGIN_MESSAGE_MAP(CimgReaderDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_START, &CimgReaderDlg::OnBnClickedBtnStart)
 END_MESSAGE_MAP()
 
 
@@ -152,3 +164,33 @@ HCURSOR CimgReaderDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CimgReaderDlg::OnBnClickedBtnStart()
+{
+	FileDlgSel selFile;
+	if (!Os::ShowFileDialog(selFile)) {
+		return;
+	}
+	m_pic_val = selFile.fileFullpath;
+
+
+	BitmapInfo info;
+	if (!Os::ReadFile(m_pic_val, info)) {
+		return;
+	}
+	switch (info.type)
+	{
+	case Bmp:
+		m_type_val.Format(_T("bmp"));
+		break;
+	default:
+		break;
+	}
+
+	m_width_val.Format(_T("%ld"), info.width);
+	m_height_val.Format(_T("%ld"), info.height);
+	m_bitcount_val.Format(_T("%hu"), info.bitCount);
+
+	UpdateData(FALSE);
+}

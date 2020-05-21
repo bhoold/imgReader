@@ -52,3 +52,19 @@
 #endif
 
 
+
+typedef struct {
+	CString fileFullpath;
+	CString fileName;
+	CString fileExt;
+} FileDlgSel;
+
+
+enum Pictype { Bmp, Jpg, Png };
+
+typedef struct {
+	Pictype type;
+	LONG width;
+	LONG height;
+	WORD bitCount;
+} BitmapInfo;
